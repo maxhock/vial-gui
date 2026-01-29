@@ -1,0 +1,60 @@
+app-id: today.vial.Vial
+runtime: org.kde.Platform
+runtime-version: '5.15-23.08'
+sdk: org.kde.Sdk
+command: vial
+
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  # Access to all devices is required for USB HID communication with keyboards
+  - --device=all
+
+modules:
+  - name: hidapi
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: archive
+        url: https://github.com/libusb/hidapi/archive/refs/tags/hidapi-0.14.0.tar.gz
+        sha256: a5714234571f8d1efbf3ebad773f107feefa82c42decc5234de10e1a354c9e0f
+
+  - name: python3-hidapi
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "." --no-build-isolation
+    sources:
+      - type: git
+        url: https://github.com/vial-kb/cython-hidapi.git
+        commit: fa31fd46e709ac4adba80bd516b1290dd56f43e9
+
+  - python3-keyboard.json
+
+  - python3-simpleeval.json
+
+  - name: vial
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-deps --prefix=${FLATPAK_DEST} fbs future
+      - install -d ${FLATPAK_DEST}/share/vial
+      - cp -r src/main/python/* ${FLATPAK_DEST}/share/vial/
+      - cp -r src/main/resources ${FLATPAK_DEST}/share/vial/
+      - install -Dm644 src/main/icons/linux/256.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/today.vial.Vial.png
+      - install -Dm644 src/main/icons/linux/512.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/today.vial.Vial.png
+      - install -Dm644 flatpak/today.vial.Vial.desktop ${FLATPAK_DEST}/share/applications/today.vial.Vial.desktop
+      - install -Dm644 flatpak/today.vial.Vial.metainfo.xml ${FLATPAK_DEST}/share/metainfo/today.vial.Vial.metainfo.xml
+      - |
+        cat > ${FLATPAK_DEST}/bin/vial << 'EOF'
+        #!/bin/bash
+        export PYTHONPATH="/app/share/vial:${PYTHONPATH}"
+        cd /app/share/vial
+        exec python3 /app/share/vial/main.py "$@"
+        EOF
+      - chmod +x ${FLATPAK_DEST}/bin/vial
+    sources:
+      - type: dir
+        path: ..

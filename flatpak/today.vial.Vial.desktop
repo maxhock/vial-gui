@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Vial
+Comment=Open-source cross-platform GUI for configuring your keyboard in real time
+Exec=vial
+Icon=today.vial.Vial
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true

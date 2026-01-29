@@ -101,3 +101,20 @@ jobs:
       with:
         name: vial-win-installer
         path: target\VialSetup.exe
+
+  build-flatpak:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-5.15-23.08
+      options: --privileged
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+      with:
+        bundle: vial.flatpak
+        manifest-path: flatpak/today.vial.Vial.yml
+        cache-key: flatpak-builder-${{ github.sha }}
