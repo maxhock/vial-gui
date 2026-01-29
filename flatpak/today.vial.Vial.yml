@@ -24,6 +24,17 @@ modules:
         url: https://github.com/libusb/hidapi/archive/refs/tags/hidapi-0.14.0.tar.gz
         sha256: a5714234abe6e1f53647dd8cba7d69f65f71c558b7896ed218864ffcf405bcbd
 
+  # Cython is required to build cython-hidapi
+  - name: python3-cython
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} Cython --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/43/c9/4c8a84731c0948b408d059c2c17c95cbb8b9c2baefe1c6985c0b29a9055e/Cython-0.29.36-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl
+        sha256: 6c4d7e36fe0211e394adffd296382b435ac22762d14f2fe45c506c230f91cf2d
+
   - name: python3-hidapi
     buildsystem: simple
     build-commands:
