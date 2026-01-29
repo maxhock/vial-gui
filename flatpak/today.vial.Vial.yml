@@ -1,4 +1,4 @@
-app-id: org.xyz.Vial
+app-id: today.vial.Vial
 runtime: org.kde.Platform
 runtime-version: '5.15-23.08'
 sdk: org.kde.Sdk
@@ -9,6 +9,7 @@ finish-args:
   - --share=network
   - --socket=fallback-x11
   - --socket=wayland
+  # Access to all devices is required for USB HID communication with keyboards
   - --device=all
 
 modules:
@@ -42,10 +43,10 @@ modules:
       - install -d ${FLATPAK_DEST}/share/vial
       - cp -r src/main/python/* ${FLATPAK_DEST}/share/vial/
       - cp -r src/main/resources ${FLATPAK_DEST}/share/vial/
-      - install -Dm644 src/main/icons/linux/256.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/org.xyz.Vial.png
-      - install -Dm644 src/main/icons/linux/512.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/org.xyz.Vial.png
-      - install -Dm644 flatpak/org.xyz.Vial.desktop ${FLATPAK_DEST}/share/applications/org.xyz.Vial.desktop
-      - install -Dm644 flatpak/org.xyz.Vial.metainfo.xml ${FLATPAK_DEST}/share/metainfo/org.xyz.Vial.metainfo.xml
+      - install -Dm644 src/main/icons/linux/256.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/today.vial.Vial.png
+      - install -Dm644 src/main/icons/linux/512.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/today.vial.Vial.png
+      - install -Dm644 flatpak/today.vial.Vial.desktop ${FLATPAK_DEST}/share/applications/today.vial.Vial.desktop
+      - install -Dm644 flatpak/today.vial.Vial.metainfo.xml ${FLATPAK_DEST}/share/metainfo/today.vial.Vial.metainfo.xml
       - |
         cat > ${FLATPAK_DEST}/bin/vial << 'EOF'
         #!/bin/bash

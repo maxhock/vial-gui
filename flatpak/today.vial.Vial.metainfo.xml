@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.xyz.Vial</id>
+  <id>today.vial.Vial</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0-or-later</project_license>
   <name>Vial</name>
@@ -18,7 +18,7 @@
       <li>Cross-platform support</li>
     </ul>
   </description>
-  <launchable type="desktop-id">org.xyz.Vial.desktop</launchable>
+  <launchable type="desktop-id">today.vial.Vial.desktop</launchable>
   <url type="homepage">https://get.vial.today/</url>
   <url type="bugtracker">https://github.com/vial-kb/vial-gui/issues</url>
   <screenshots>
