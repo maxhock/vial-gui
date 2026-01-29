@@ -20,7 +20,7 @@ modules:
     sources:
       - type: archive
         url: https://github.com/libusb/hidapi/archive/refs/tags/hidapi-0.14.0.tar.gz
-        sha256: a5714234571f8d1efbf3ebad773f107feefa82c42decc5234de10e1a354c9e0f
+        sha256: a5714234abe6e1f53647dd8cba7d69f65f71c558b7896ed218864ffcf405bcbd
 
   - name: python3-hidapi
     buildsystem: simple
