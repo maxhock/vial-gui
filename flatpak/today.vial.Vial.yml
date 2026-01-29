@@ -17,6 +17,7 @@ modules:
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
+      # Disable libusb backend - not available in Flatpak SDK, hidraw backend is sufficient for keyboard HID
       - -DHIDAPI_WITH_LIBUSB=OFF
     sources:
       - type: archive
