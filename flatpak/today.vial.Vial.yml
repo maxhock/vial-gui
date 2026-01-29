@@ -17,6 +17,7 @@ modules:
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
+      - -DHIDAPI_WITH_LIBUSB=OFF
     sources:
       - type: archive
         url: https://github.com/libusb/hidapi/archive/refs/tags/hidapi-0.14.0.tar.gz
