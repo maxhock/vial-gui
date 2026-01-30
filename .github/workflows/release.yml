@@ -149,7 +149,7 @@ jobs:
         cp artifacts/vial-mac/vial-mac.dmg release-assets/Vial-mac.dmg
         cp artifacts/vial-win/vial-win.zip release-assets/Vial-win.zip
         cp artifacts/vial-win-installer/VialSetup.exe release-assets/
-        cp artifacts/vial.flatpak/vial.flatpak release-assets/
+        cp artifacts/vial.flatpak/vial-x86_64.flatpak release-assets/
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v2
