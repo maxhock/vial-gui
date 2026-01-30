@@ -40,10 +40,29 @@ modules:
 
   - python3-simpleeval.json
 
+  - name: python3-future
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} future --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/da/71/ae30dadffc90b9006d77af76b393cb9dfbfc9629f339fc1574a1c52e6806/future-1.0.0-py3-none-any.whl
+        sha256: 929292d34f5872e70396626ef385ec22355a1fae8ad29e1a734c3e43f9fbc216
+
+  - name: python3-fbs
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "." --no-build-isolation
+    sources:
+      - type: archive
+        url: https://files.pythonhosted.org/packages/59/66/be644f4822992ade58e172b4d88d5292ad0a8ebbcd3be0079e8848b1f43d/fbs-1.2.7.tar.gz
+        sha256: 5e988fdfe0b87317a04216d0eaba2fcf0b316ef14fe1b583459824673c1e0e05
+
   - name: vial
     buildsystem: simple
     build-commands:
-      - pip3 install --no-deps --prefix=${FLATPAK_DEST} fbs future
       - install -d ${FLATPAK_DEST}/share/vial
       - cp -r src/main/python/* ${FLATPAK_DEST}/share/vial/
       - cp -r src/main/resources ${FLATPAK_DEST}/share/vial/
