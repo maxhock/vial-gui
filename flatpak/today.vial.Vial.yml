@@ -53,8 +53,9 @@ modules:
   - name: python3-fbs
     buildsystem: simple
     build-commands:
+      # Install fbs without dependencies - we only need fbs_runtime module, not the build tools
       - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
-        --prefix=${FLATPAK_DEST} "." --no-build-isolation
+        --prefix=${FLATPAK_DEST} "." --no-build-isolation --no-deps
     sources:
       - type: archive
         url: https://files.pythonhosted.org/packages/59/66/be644f4822992ade58e172b4d88d5292ad0a8ebbcd3be0079e8848b1f43d/fbs-1.2.7.tar.gz
