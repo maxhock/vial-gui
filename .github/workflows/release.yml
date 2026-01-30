@@ -1,0 +1,158 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build
+      run: ./util/linux-builder/build-in-docker.sh
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: vial-linux
+        path: util/linux-builder/output/Vial-x86_64.AppImage
+
+  build-mac:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    env:
+      PYTHON_VERSION: 3.6.8
+      MACOSX_DEPLOYMENT_TARGET: 10.9
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get Python
+      run: curl https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-macosx${MACOSX_DEPLOYMENT_TARGET}.pkg -o "python.pkg"
+
+    - name: Verify download
+      run: shasum -a 256 -c <<< '4bcd53faffc98d193ef7cdccd5668de3829c702af4db45258819a84a2cab60d0 *python.pkg'
+
+    - name: Install Python
+      run: |
+        sudo installer -pkg python.pkg -target /
+
+    - name: Setup venv
+      run: |
+        python3.6 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Build
+      run: |
+        source venv/bin/activate
+        fbs freeze
+        hdiutil create -volname Vial -srcfolder "target/Vial.app" -ov -format UDZO vial-mac.dmg
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: vial-mac
+        path: vial-mac.dmg
+
+  build-win:
+    runs-on: windows-2025
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.6.x'
+
+    - name: Setup venv
+      run: |
+        python -m venv venv
+        . .\venv\Scripts\activate.ps1
+        pip install -r requirements.txt
+
+    - name: Install NSIS
+      run: |
+        Invoke-WebRequest "https://github.com/vial-kb/vial-deps/releases/download/v1/nsis-3.06.1-setup.exe" -UserAgent "wget" -OutFile nsis-3.06.1-setup.exe
+        if ((Get-FileHash nsis-3.06.1-setup.exe -Algorithm sha256).Hash -ne "f60488a676308079bfdf6845dc7114cfd4bbff47b66be4db827b89bb8d7fdc52") { Write-Error 'SHA256 mismatch' }
+        Start-Process -FilePath "nsis-3.06.1-setup.exe" -ArgumentList "/S", "/D=C:\Program Files (x86)\NSIS" -NoNewWindow -Wait
+
+    - name: Install Visual C++ Redistributable
+      run: |
+        Invoke-WebRequest -Uri "https://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe" -OutFile "vcredist_x64.exe"
+        Start-Process -FilePath "vcredist_x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -Wait
+        Remove-Item "vcredist_x64.exe"
+
+    - name: Build
+      run: |
+        . .\venv\Scripts\activate.ps1
+        fbs freeze
+        Compress-Archive -Path "target\Vial" -DestinationPath vial-win.zip
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: vial-win
+        path: vial-win.zip
+
+    - name: Create installer
+      run: |
+        $env:Path += ";C:\Program Files (x86)\NSIS"
+        . .\venv\Scripts\activate.ps1
+        fbs installer
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: vial-win-installer
+        path: target\VialSetup.exe
+
+  build-flatpak:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-5.15-23.08
+      options: --privileged
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+      with:
+        bundle: vial.flatpak
+        manifest-path: flatpak/today.vial.Vial.yml
+        cache-key: flatpak-builder-${{ github.sha }}
+
+  upload-release-assets:
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-mac, build-win, build-flatpak]
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Display structure of downloaded files
+      run: ls -R artifacts
+
+    - name: Prepare release assets
+      run: |
+        mkdir -p release-assets
+        cp artifacts/vial-linux/Vial-x86_64.AppImage release-assets/
+        cp artifacts/vial-mac/vial-mac.dmg release-assets/Vial-mac.dmg
+        cp artifacts/vial-win/vial-win.zip release-assets/Vial-win.zip
+        cp artifacts/vial-win-installer/VialSetup.exe release-assets/
+        cp artifacts/vial.flatpak/vial.flatpak release-assets/
+
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: release-assets/*
+        token: ${{ secrets.GITHUB_TOKEN }}
