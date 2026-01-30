@@ -29,8 +29,8 @@ modules:
     build-commands:
       # Patch setup.py to remove exact Cython version requirement (SDK has Cython 0.29.37)
       - sed -i "s/setup_requires = \['Cython==0.29.25'\]/setup_requires = []/" setup.py
-      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
-        --prefix=${FLATPAK_DEST} "." --no-build-isolation
+      # Build with --without-libusb to avoid needing libusb.h (hidraw backend is sufficient)
+      - python3 setup.py install --without-libusb --prefix=${FLATPAK_DEST}
     sources:
       - type: git
         url: https://github.com/vial-kb/cython-hidapi.git
